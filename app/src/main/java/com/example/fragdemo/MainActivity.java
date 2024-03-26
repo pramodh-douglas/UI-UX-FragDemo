@@ -1,14 +1,19 @@
 package com.example.fragdemo;
 
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.util.Log;
 import android.view.View;
 
 import androidx.core.view.WindowCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -18,6 +23,10 @@ import com.example.fragdemo.databinding.ActivityMainBinding;
 
 import android.view.Menu;
 import android.view.MenuItem;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,6 +42,10 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(binding.toolbar);
 
+        binding.mainContent.mainLayout.setBackgroundColor(Color.parseColor("#FAFAFA"));
+
+        binding.fab.setBackgroundTintList(ColorStateList.valueOf(Color.LTGRAY));
+
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
@@ -40,11 +53,45 @@ public class MainActivity extends AppCompatActivity {
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                ColorDrawable colorDrawable = (ColorDrawable) binding.mainContent.mainLayout.getBackground();
+                int colorId = colorDrawable.getColor(); // Stores original color, can help when doing undo action
+
+                if(colorId == Color.LTGRAY) {
+                    binding.mainContent.mainLayout.setBackgroundColor(Color.parseColor("#FAFAFA"));
+                    binding.fab.setBackgroundTintList(ColorStateList.valueOf(Color.LTGRAY));
+                } else {
+                    binding.mainContent.mainLayout.setBackgroundColor(Color.LTGRAY);
+                    binding.fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FAFAFA")));
+                }
+
+                Snackbar.make(view, "Like the new color? ", Snackbar.LENGTH_LONG)
                         .setAnchorView(R.id.fab)
-                        .setAction("Action", null).show();
+                        .setAction("UNDO", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if(colorId != Color.LTGRAY) {
+                                    binding.mainContent.mainLayout.setBackgroundColor(Color.parseColor("#FAFAFA"));
+                                    binding.fab.setBackgroundTintList(ColorStateList.valueOf(Color.LTGRAY));
+                                } else {
+                                    binding.mainContent.mainLayout.setBackgroundColor(Color.LTGRAY);
+                                    binding.fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FAFAFA")));
+                                }
+                            }
+                        }).show();
             }
         });
+
+        List<String> colorDescriptions = new ArrayList<>(Arrays.asList("BLACK", "ORANGE", "PURPLE"));
+        List<Integer> colorVals = new ArrayList<>(Arrays.asList(Color.BLACK, Color.rgb(255, 165, 0), Color.parseColor("#800080")));
+        List<ColorSpec> ColorList = new ArrayList<>();
+
+        for (int i = 0; i < colorDescriptions.size(); i++) {
+            ColorSpec colorSpec = new ColorSpec(colorDescriptions.get(i), colorVals.get(i));
+            ColorList.add(colorSpec);
+        }
+        Log.d("FRAGDEMO", ColorList.size() + "items in list");
+        ColorSpecViewModel colorSpecViewModel = new ViewModelProvider(this).get(ColorSpecViewModel.class);
+        colorSpecViewModel.setColorList(ColorList);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.example.fragdemo;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +29,12 @@ public class SecondFragment extends Fragment {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        if(getArguments() != null) {
+            int colorVal = getArguments().getInt("COLORVAL", Color.BLUE);
+            // if blue color, correct value has not been passed
+            binding.textviewSecond.setTextColor(colorVal);
+        }
 
         binding.buttonSecond.setOnClickListener(new View.OnClickListener() {
             @Override
